@@ -4,13 +4,10 @@ var fs = require('fs');
 var request = require("request");
 require('dotenv').config();
 
-module.exports = function getRepoContributors(repoOwner, repoName, cb) {
-  var api_token = process.env['GITHUB_API_TOKEN'];
+module.exports = function getRepoContributors(repoOwner, repoName, api_token, cb) {
   var contributors = [];
   var apiRoot = "https://api.github.com";
-
-  result = [];
-  request.get({
+  var options = {
     url: apiRoot + '/repos/' + repoOwner + "/" + repoName + '/contributors',
     auth: {
       user: 'colorwheeloflife',
@@ -20,18 +17,10 @@ module.exports = function getRepoContributors(repoOwner, repoName, cb) {
       'User-Agent': 'Lighthouse'
     },
     json: true
-  }, function (err, incomingMessage, responseBody) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      var value = 0;
-      var index = responseBody.length;
-
-      responseBody.forEach(function(value, index) {
-        var filename = "./avatar/"+value.id+".jpg";
-        downloadImage.downloadImageByURL(value.avatar_url, filename);
-      });
-
-  });
+  }
+  if(api_token === undefined) {
+    console.log("Missing token. Please check if you have entered a valid token within an .env file");
+    process.exit(1);
+  }
+  request.get(options, cb);
 }
